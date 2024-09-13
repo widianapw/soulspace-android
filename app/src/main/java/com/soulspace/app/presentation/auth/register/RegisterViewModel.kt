@@ -1,4 +1,4 @@
-package com.soulspace.app.presentation.auth.login
+package com.soulspace.app.presentation.auth.register
 
 import android.util.Log
 import androidx.compose.runtime.State
@@ -8,7 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.soulspace.app.common.Resource
 import com.soulspace.app.common.TokenManager
 import com.soulspace.app.common.UiEvents
-import com.soulspace.app.domain.use_case.PostLoginUseCase
+import com.soulspace.app.domain.use_case.PostRegisterUseCase
+import com.soulspace.app.presentation.auth.login.LoginState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -18,28 +19,36 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val postLoginUseCase: PostLoginUseCase,
+class RegisterViewModel @Inject constructor(
+    private val postRegisterUseCase: PostRegisterUseCase,
     private val tokenManager: TokenManager
 ) : ViewModel() {
-    private val _state = mutableStateOf(LoginState())
+    private val _state = mutableStateOf(RegisterState())
     private val _eventFlow = MutableSharedFlow<UiEvents>()
     val eventFlow = _eventFlow.asSharedFlow()
-    val state: State<LoginState> = _state
+    val state: State<RegisterState> = _state
 
-    fun submitLogin(email: String, password: String) {
-        Log.d("LoginViewModel", "submitLogin: $email, $password")
+    fun submitRegister(email: String, password: String, name: String) {
+        Log.d("RegisterViewModel", "submitLogin: $email, $password")
 
         // Reset errors when starting a new login attempt
         _state.value = _state.value.copy(
             isEmailError = false,
+            isNameError = false,
+            nameErrorMessage = "",
             emailErrorMessage = "",
             isPasswordError = false,
             passwordErrorMessage = "",
             isLoading = false,
-            isSuccess = false,
             error = ""
         )
+        if (name.isEmpty()) {
+            _state.value = _state.value.copy(
+                isNameError = true,
+                nameErrorMessage = "Name is required"
+            )
+            return
+        }
 
         if (email.isEmpty()) {
             _state.value = _state.value.copy(
@@ -59,7 +68,7 @@ class LoginViewModel @Inject constructor(
 
         // Perform login operation inside a coroutine
         viewModelScope.launch {
-            postLoginUseCase(email, password)
+            postRegisterUseCase(name = name, email = email, password = password)
                 .onEach { result ->
                     when (result) {
                         is Resource.Loading -> {
@@ -69,8 +78,7 @@ class LoginViewModel @Inject constructor(
                         is Resource.Success -> {
 //                            save the token to shared preferences
                             result.data?.data?.let {
-                                it.user.let {
-                                    user->
+                                it.user.let { user ->
                                     tokenManager.saveAuthPrefs(
                                         token = it.accessToken,
                                         userId = user.id,
@@ -79,7 +87,7 @@ class LoginViewModel @Inject constructor(
                                 }
                             }
 
-                            _state.value = _state.value.copy(isLoading = false, isSuccess = true)
+                            _state.value = _state.value.copy(isLoading = false)
                             _eventFlow.emit(
                                 UiEvents.SuccessEvent()
                             )

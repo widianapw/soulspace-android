@@ -5,6 +5,7 @@ import com.soulspace.app.domain.model.AuthResponse
 import com.soulspace.app.domain.model.ChatResponse
 import com.soulspace.app.domain.model.PostChatResponse
 import com.soulspace.app.domain.model.PsychologistResponse
+import com.soulspace.app.domain.model.ResetChatResponse
 import com.soulspace.app.domain.repository.SoulSpaceRepository
 import javax.inject.Inject
 
@@ -32,4 +33,7 @@ class SoulSpaceRepositoryImpl @Inject constructor(
         return soulSpaceApi.sendMessage(message)
     }
 
+    override suspend fun resetChat(): ResetChatResponse {
+        return soulSpaceApi.resetChat()
+    }
 }

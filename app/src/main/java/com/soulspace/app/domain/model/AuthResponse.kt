@@ -18,7 +18,14 @@ data class User(
     @SerializedName("is_admin")
     val isAdmin: Boolean,
     val name: String,
+    @SerializedName("chat_room")
+    val chatRoom: ChatRoom,
     val created_at: String,
     val updated_at: String,
     val email_verified_at: Any,
+)
+
+data class ChatRoom(
+    val id: Int,
+    val name: String,
 )

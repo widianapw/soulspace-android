@@ -14,5 +14,7 @@ data class PsychologistItem(
     val longitude: String,
     val name: String,
     @SerializedName("phone_number")
-    val phoneNumber: String
+    val phoneNumber: String,
+    @SerializedName("image_url")
+    val imageUrl: String?
 )

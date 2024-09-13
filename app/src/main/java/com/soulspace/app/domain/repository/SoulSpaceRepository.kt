@@ -4,6 +4,7 @@ import com.soulspace.app.domain.model.AuthResponse
 import com.soulspace.app.domain.model.ChatResponse
 import com.soulspace.app.domain.model.PostChatResponse
 import com.soulspace.app.domain.model.PsychologistResponse
+import com.soulspace.app.domain.model.ResetChatResponse
 
 
 interface SoulSpaceRepository {
@@ -12,4 +13,5 @@ interface SoulSpaceRepository {
     suspend fun getPsychologists(): PsychologistResponse
     suspend fun getChat(): ChatResponse
     suspend fun sendMessage(message: String): PostChatResponse
+    suspend fun resetChat(): ResetChatResponse
 }

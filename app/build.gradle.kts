@@ -89,5 +89,10 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.coil.compose)
+    implementation(libs.composeIcons.fontAwesome)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.appcompat)
 }

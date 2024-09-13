@@ -4,6 +4,7 @@ import com.soulspace.app.domain.model.AuthResponse
 import com.soulspace.app.domain.model.ChatResponse
 import com.soulspace.app.domain.model.PostChatResponse
 import com.soulspace.app.domain.model.PsychologistResponse
+import com.soulspace.app.domain.model.ResetChatResponse
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -25,7 +26,7 @@ interface SoulSpaceApi {
         @Field("password") password: String
     ): AuthResponse
 
-    @GET("psychologists")
+    @GET("psychologist")
     suspend fun getPsychologists(): PsychologistResponse
 
     @GET("chat")
@@ -36,4 +37,8 @@ interface SoulSpaceApi {
     suspend fun sendMessage(
         @Field("message") message: String
     ): PostChatResponse
+
+
+    @POST("chat/reset")
+    suspend fun resetChat(): ResetChatResponse
 }

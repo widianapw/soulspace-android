@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.SoulSpaceAndroid" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.SoulSpaceAndroid" parent="Theme.AppCompat.NoActionBar" >
+        <!-- Ensure that the splash screen theme is set as the starting theme -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_background</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/white</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item> <!-- 1 second -->
+        <item name="postSplashScreenTheme">@style/Theme.SoulSpaceAndroid</item>
+    </style>
 </resources>

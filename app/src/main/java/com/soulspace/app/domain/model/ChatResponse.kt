@@ -8,12 +8,12 @@ data class ChatResponse(
 
 data class ChatResponseItem(
     @SerializedName("chat_room_id")
-    val chatRoomId: String,
-    val id: Int,
+    val chatRoomId: Int ? =null,
+    val id: Int? = null,
     val message: String,
     @SerializedName("sender_type")
     val senderType: String,
-    val updated_at: String,
-    val created_at: String,
-    val deleted_at: Any,
+    val updated_at: String? = null,
+    val created_at: String? = null,
+    val deleted_at: Any? = null,
 )
