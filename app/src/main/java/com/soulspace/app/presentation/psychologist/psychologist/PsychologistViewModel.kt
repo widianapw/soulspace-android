@@ -16,24 +16,32 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 class PsychologistViewModel @Inject constructor(
     private val getPsychologistUseCase: GetPsychologistUseCase,
     private val tokenManager: TokenManager
-): ViewModel() {
+) : ViewModel() {
     private val _state = mutableStateOf(PsychologistState())
 
     val state: State<PsychologistState> = _state
 
-    init {
-        getPsychologists()
-    }
+//    init {
+//        getPsychologists()
+//    }
 
-    private fun getPsychologists() {
-        getPsychologistUseCase().onEach {
+    fun getPsychologists(
+        latitude: Double? = null,
+        longitude: Double? = null
+    ) {
+        getPsychologistUseCase(
+            latitude, longitude
+        ).onEach {
             when (it) {
                 is Resource.Success -> {
                     _state.value = PsychologistState(list = it.data?.data ?: emptyList())
                 }
+
                 is Resource.Error -> {
-                    _state.value = PsychologistState(error = it.message ?: "An unexpected error occurred")
+                    _state.value =
+                        PsychologistState(error = it.message ?: "An unexpected error occurred")
                 }
+
                 is Resource.Loading -> {
                     _state.value = PsychologistState(isLoading = true)
                 }
@@ -41,7 +49,7 @@ class PsychologistViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun logout(){
+    fun logout() {
         tokenManager.clearAuthPrefs()
     }
 }

@@ -1,5 +1,6 @@
 package com.soulspace.app.data.repository
 
+import android.util.Log
 import com.soulspace.app.data.remote.SoulSpaceApi
 import com.soulspace.app.domain.model.AuthResponse
 import com.soulspace.app.domain.model.ChatResponse
@@ -21,8 +22,14 @@ class SoulSpaceRepositoryImpl @Inject constructor(
         return soulSpaceApi.register(name, email, password)
     }
 
-    override suspend fun getPsychologists(): PsychologistResponse {
-        return soulSpaceApi.getPsychologists()
+    override suspend fun getPsychologists(
+        latitude: Double?,
+        longitude: Double?
+    ): PsychologistResponse {
+        Log.d("SoulSpaceRepositoryImpl", "getPsychologists: $latitude, $longitude")
+        return soulSpaceApi.getPsychologists(
+            latitude, longitude
+        )
     }
 
     override suspend fun getChat(): ChatResponse {

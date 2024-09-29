@@ -9,6 +9,7 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface SoulSpaceApi {
     @FormUrlEncoded
@@ -27,7 +28,10 @@ interface SoulSpaceApi {
     ): AuthResponse
 
     @GET("psychologist")
-    suspend fun getPsychologists(): PsychologistResponse
+    suspend fun getPsychologists(
+        @Query("latitude") latitude: Double? = null,
+        @Query("longitude") longitude: Double? = null
+    ): PsychologistResponse
 
     @GET("chat")
     suspend fun getChat(): ChatResponse

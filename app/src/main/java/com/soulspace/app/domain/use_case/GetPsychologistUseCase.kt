@@ -13,10 +13,13 @@ import javax.inject.Inject
 class GetPsychologistUseCase @Inject constructor(
     private val repository: SoulSpaceRepository
 ) {
-    operator fun invoke(): Flow<Resource<PsychologistResponse>> = flow {
+    operator fun invoke(
+        latitude: Double? = null,
+        longitude: Double? = null
+    ): Flow<Resource<PsychologistResponse>> = flow {
         try {
             emit(Resource.Loading<PsychologistResponse>())
-            val response = repository.getPsychologists()
+            val response = repository.getPsychologists(latitude, longitude)
             emit(Resource.Success<PsychologistResponse>(response))
         } catch (e: HttpException) {
             emit(

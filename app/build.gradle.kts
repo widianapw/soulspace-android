@@ -95,4 +95,5 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.appcompat)
+    implementation(libs.play.services.location)
 }

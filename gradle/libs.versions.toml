@@ -25,6 +25,7 @@ composeNavigation = "2.8.0-alpha08"
 lifecycleViewmodelKtx = "2.8.5"
 loggingInterceptor = "5.0.0-alpha.2"
 okhttp = "5.0.0-alpha.2"
+playServicesLocation = "21.3.0"
 retrofit = "2.9.0"
 serialization = "1.6.3"
 uiTextGoogleFonts = "1.7.0"
@@ -62,6 +63,7 @@ navigation-compose = { module = "androidx.navigation:navigation-compose", versio
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization"}
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 xicon_pack_z = { module = "br.com.devsrsouza.compose.icons:{ICON_PACK}", version.ref = "xicon_pack_z" }
 composeIcons-cssGg = { module = "br.com.devsrsouza.compose.icons:css-gg", version.ref = "composeIcons" }
