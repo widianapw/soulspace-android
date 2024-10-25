@@ -71,6 +71,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat
+import com.soulspace.app.presentation.psychologist.navigation.NavigationRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -88,6 +89,7 @@ fun PsychologistScreen(
     var addressText by remember { mutableStateOf("Fetching address...") }
     var latitude by remember { mutableStateOf<Double?>(null) }
     var longitude by remember { mutableStateOf<Double?>(null) }
+    var isPermissionGranted by remember { mutableStateOf(false) }
 
 
     val permissionsToRequest = arrayOf(
@@ -101,7 +103,7 @@ fun PsychologistScreen(
 
     var fusedLocationClient: FusedLocationProviderClient? = null
 
-    val multiplePermissionResultLauncher = rememberLauncherForActivityResult(
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { perms ->
             val areGranted = perms.values.reduce { acc, next -> acc && next }
@@ -111,6 +113,7 @@ fun PsychologistScreen(
                     isGranted = perms[permission] == true
                 )
             }
+            isPermissionGranted = areGranted
             if (areGranted) {
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
                 // Get the last known location
@@ -146,7 +149,7 @@ fun PsychologistScreen(
     )
 
     LaunchedEffect(Unit) {
-        multiplePermissionResultLauncher.launch(permissionsToRequest)
+        locationPermissionLauncher.launch(permissionsToRequest)
     }
     // LaunchedEffect to trigger reverse geocoding when latitude and longitude change
     LaunchedEffect(latitude, longitude) {
@@ -165,7 +168,7 @@ fun PsychologistScreen(
                 onDismiss = permissionViewModel::dismissDialog,
                 onOkClick = {
                     permissionViewModel.dismissDialog()
-                    multiplePermissionResultLauncher.launch(
+                    locationPermissionLauncher.launch(
                         arrayOf(permission)
                     )
                 },
@@ -233,8 +236,10 @@ fun PsychologistScreen(
                     }
                 )
                 Box(
-                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
-                ){
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally),
+                ) {
                     Text(
                         text = addressText,
                         style = MaterialTheme.typography.bodyMedium,
@@ -297,12 +302,18 @@ fun PsychologistScreen(
                                     ) {
                                         FilledTonalButton(
                                             onClick = {
-                                                val gmmIntentUri =
-                                                    Uri.parse("google.navigation:q=${psychologist.latitude},${psychologist.longitude}")
-                                                val mapIntent =
-                                                    Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                                                mapIntent.setPackage("com.google.android.apps.maps")
-                                                context.startActivity(mapIntent)
+                                                navController?.navigate(
+                                                    NavigationRoute(
+                                                        toLatitude = "${psychologist.latitude}",
+                                                        toLongitude = "${psychologist.longitude}"
+                                                    )
+                                                )
+//                                                val gmmIntentUri =
+//                                                    Uri.parse("google.navigation:q=${psychologist.latitude},${psychologist.longitude}")
+//                                                val mapIntent =
+//                                                    Intent(Intent.ACTION_VIEW, gmmIntentUri)
+//                                                mapIntent.setPackage("com.google.android.apps.maps")
+//                                                context.startActivity(mapIntent)
                                             },
                                             modifier = Modifier.weight(1f),
                                         ) {
@@ -358,7 +369,8 @@ suspend fun getAddressFromLatLng(context: Context, latitude: Double, longitude: 
             val addresses = geocoder.getFromLocation(latitude, longitude, 1)
             if (addresses?.isNotEmpty() == true) {
                 val address = addresses[0]
-                val addressLines = (0..address.maxAddressLineIndex).map { address.getAddressLine(it) }
+                val addressLines =
+                    (0..address.maxAddressLineIndex).map { address.getAddressLine(it) }
                 addressLines.joinToString(separator = "\n")
             } else {
                 null

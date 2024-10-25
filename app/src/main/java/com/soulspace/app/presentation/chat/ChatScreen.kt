@@ -1,5 +1,11 @@
 package com.soulspace.app.presentation.chat
 
+import android.Manifest
+import android.app.Application
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,9 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,23 +42,35 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.soulspace.app.common.UiEvents
 import com.soulspace.app.domain.model.ChatResponseItem
+import com.soulspace.app.domain.voice_to_text.VoiceToTextParser
 import com.soulspace.app.presentation.chat.components.UserHead
+import com.soulspace.app.presentation.permission.LocationPermissionTextProvider
+import com.soulspace.app.presentation.permission.PermissionDialog
+import com.soulspace.app.presentation.permission.PermissionViewModel
+import com.soulspace.app.presentation.permission.openAppSettings
 import com.soulspace.app.presentation.psychologist.psychologist.PsychologistRoute
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Microphone
+import compose.icons.fontawesomeicons.solid.Stop
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -70,10 +86,52 @@ fun ChatScreen(
     navController: NavController? = null,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
+    var canRecord by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val state = viewModel.state.value
+
+    val context = LocalContext.current
+
+    val permissionViewModel = viewModel<PermissionViewModel>()
+    val permissionsToRequest = Manifest.permission.RECORD_AUDIO
+    val dialogQueue = permissionViewModel.visiblePermissionDialogQueue
+
+
+    val voiceState by viewModel.voiceState.collectAsState()
+
+    val voicePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            permissionViewModel.onPermissionResult(
+                permission = permissionsToRequest,
+                isGranted = isGranted
+            )
+
+            canRecord = isGranted
+//            if (isGranted) {
+//                voiceToTextParser.startListening()
+//            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        voicePermissionLauncher.launch(permissionsToRequest)
+    }
+
+    fun startListening() {
+//        voicePermissionLauncher.launch(permissionsToRequest)
+        if(canRecord) {
+            viewModel.startListening()
+        }else{
+            voicePermissionLauncher.launch(permissionsToRequest)
+        }
+    }
+
+    fun stopListening() {
+        viewModel.stopListening()
+    }
 
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
@@ -98,6 +156,38 @@ fun ChatScreen(
         }
     }
 
+    LaunchedEffect(voiceState.spokenText, voiceState.isSpeaking) {
+        if (!voiceState.isSpeaking) {
+            viewModel.setMessage(voiceState.spokenText)
+        }
+    }
+
+    LaunchedEffect(voiceState.error) {
+        voiceState.error?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
+
+    dialogQueue
+        .reversed()
+        .forEach { permission ->
+            PermissionDialog(
+                permissionTextProvider = LocationPermissionTextProvider(),
+                onDismiss = permissionViewModel::dismissDialog,
+                onOkClick = {
+                    permissionViewModel.dismissDialog()
+                    voicePermissionLauncher.launch(
+                        permission
+                    )
+                },
+                onGoToAppSettingsClick = {
+                    context.openAppSettings()
+                }
+            )
+        }
 
 
     Scaffold(
@@ -137,8 +227,10 @@ fun ChatScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
 
-                        Text(text = "AI Psikolog",
-                            modifier = Modifier.weight(1f)) // Replace with dynamic name
+                        Text(
+                            text = "AI Psikolog",
+                            modifier = Modifier.weight(1f)
+                        ) // Replace with dynamic name
                     }
                 },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.White) // Customize color as needed
@@ -181,14 +273,32 @@ fun ChatScreen(
                     .padding(8.dp),
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
-                IconButton(onClick = {}
+                IconButton(onClick = {
+                    if (voiceState.isSpeaking) {
+                        stopListening()
+                    } else {
+                        startListening()
+                    }
+                }
                 ) {
-                    Icon(
-//                                mic icon
-                        imageVector = FontAwesomeIcons.Solid.Microphone,
-                        modifier = Modifier.width(14.dp),
-                        contentDescription = "Refresh"
-                    )
+                    AnimatedContent(
+                        targetState = voiceState.isSpeaking,
+                    ) {  isSpeaking ->
+                        if (!isSpeaking){
+                            Icon(
+                                imageVector = FontAwesomeIcons.Solid.Microphone,
+                                modifier = Modifier.width(14.dp),
+                                contentDescription = "Refresh"
+                            )
+                        }else{
+                            Icon(
+                                imageVector = FontAwesomeIcons.Solid.Stop,
+                                modifier = Modifier.width(14.dp),
+                                contentDescription = "Refresh"
+                            )
+
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 TextField(

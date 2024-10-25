@@ -9,6 +9,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.soulspace.app.common.TokenManager
 import com.soulspace.app.presentation.auth.biometric.BiometricPromptManager
 import com.soulspace.app.presentation.auth.biometric.BiometricRoute
@@ -21,6 +22,8 @@ import com.soulspace.app.presentation.chat.ChatRoute
 import com.soulspace.app.presentation.chat.ChatScreen
 import com.soulspace.app.presentation.intro.SplashRoute
 import com.soulspace.app.presentation.intro.SplashScreen
+import com.soulspace.app.presentation.psychologist.navigation.NavigationRoute
+import com.soulspace.app.presentation.psychologist.navigation.NavigationScreen
 import com.soulspace.app.presentation.psychologist.psychologist.PsychologistRoute
 import com.soulspace.app.presentation.psychologist.psychologist.PsychologistScreen
 import com.soulspace.app.presentation.ui.theme.AppTheme
@@ -31,6 +34,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
+//        val startDestination = NavigationRoute(
+//            "0", "0"
+//        )
         val startDestination = LoginRoute
 
         enableEdgeToEdge()
@@ -75,6 +81,14 @@ class MainActivity : AppCompatActivity() {
                     composable<ChatRoute> {
                         ChatScreen(
                             navController = navController
+                        )
+                    }
+
+                    composable<NavigationRoute> {
+                        val args = it.toRoute<NavigationRoute>()
+                        NavigationScreen(
+                            navController = navController,
+                            args = args
                         )
                     }
                 }

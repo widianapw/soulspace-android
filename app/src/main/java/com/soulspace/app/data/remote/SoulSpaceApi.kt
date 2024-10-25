@@ -2,6 +2,7 @@ package com.soulspace.app.data.remote
 
 import com.soulspace.app.domain.model.AuthResponse
 import com.soulspace.app.domain.model.ChatResponse
+import com.soulspace.app.domain.model.NavigationItem
 import com.soulspace.app.domain.model.PostChatResponse
 import com.soulspace.app.domain.model.PsychologistResponse
 import com.soulspace.app.domain.model.ResetChatResponse
@@ -45,4 +46,12 @@ interface SoulSpaceApi {
 
     @POST("chat/reset")
     suspend fun resetChat(): ResetChatResponse
+
+    @GET("psychologist/route")
+    suspend fun getPsychologistRoute(
+        @Query("fromLatitude") fromLatitude: Double? = null,
+        @Query("fromLongitude") fromLongitude: Double? = null,
+        @Query("toLatitude") toLatitude: Double? = null,
+        @Query("toLongitude") toLongitude: Double? = null
+    ): List<NavigationItem>
 }

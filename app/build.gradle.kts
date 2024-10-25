@@ -96,4 +96,6 @@ dependencies {
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.appcompat)
     implementation(libs.play.services.location)
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("tech.utsmankece:osm-android-compose:0.0.5")
 }

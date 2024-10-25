@@ -10,6 +10,7 @@ import com.soulspace.app.domain.use_case.GetChatUseCase
 import com.soulspace.app.domain.use_case.GetPsychologistUseCase
 import com.soulspace.app.domain.use_case.PostSendMessageUseCase
 import com.soulspace.app.domain.use_case.ResetChatUseCase
+import com.soulspace.app.domain.voice_to_text.VoiceToTextParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,15 +22,25 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     private val getChatUseCase: GetChatUseCase,
     private val postSendMessageUseCase: PostSendMessageUseCase,
-    private val resetChatUseCase: ResetChatUseCase
+    private val resetChatUseCase: ResetChatUseCase,
+    private val voiceToTextParser: VoiceToTextParser
 ) : ViewModel() {
     val _state = mutableStateOf(ChatState())
     val state: State<ChatState> = _state
     private val _eventFlow = MutableSharedFlow<UiEvents>()
     val eventFlow = _eventFlow.asSharedFlow()
+    val voiceState = voiceToTextParser.state
 
     init {
         getChat()
+    }
+
+    fun startListening(){
+        voiceToTextParser.startListening()
+    }
+
+    fun stopListening(){
+        voiceToTextParser.stopListening()
     }
 
     fun getChat(showLoading: Boolean = true) {

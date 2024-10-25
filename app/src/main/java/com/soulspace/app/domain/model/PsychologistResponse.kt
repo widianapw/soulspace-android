@@ -10,8 +10,8 @@ data class PsychologistItem(
     val address: String,
     val email: String,
     val id: Int,
-    val latitude: String,
-    val longitude: String,
+    val latitude: Double,
+    val longitude: Double,
     val name: String,
     @SerializedName("phone_number")
     val phoneNumber: String,

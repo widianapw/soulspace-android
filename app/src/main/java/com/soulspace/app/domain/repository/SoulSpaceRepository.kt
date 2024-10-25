@@ -2,6 +2,7 @@ package com.soulspace.app.domain.repository
 
 import com.soulspace.app.domain.model.AuthResponse
 import com.soulspace.app.domain.model.ChatResponse
+import com.soulspace.app.domain.model.NavigationItem
 import com.soulspace.app.domain.model.PostChatResponse
 import com.soulspace.app.domain.model.PsychologistResponse
 import com.soulspace.app.domain.model.ResetChatResponse
@@ -18,4 +19,11 @@ interface SoulSpaceRepository {
     suspend fun getChat(): ChatResponse
     suspend fun sendMessage(message: String): PostChatResponse
     suspend fun resetChat(): ResetChatResponse
+
+    suspend fun getPsychologistRoute(
+        fromLatitude: Double? = null,
+        fromLongitude: Double? = null,
+        toLatitude: Double? = null,
+        toLongitude: Double? = null
+    ): List<NavigationItem>
 }

@@ -4,6 +4,7 @@ import android.util.Log
 import com.soulspace.app.data.remote.SoulSpaceApi
 import com.soulspace.app.domain.model.AuthResponse
 import com.soulspace.app.domain.model.ChatResponse
+import com.soulspace.app.domain.model.NavigationItem
 import com.soulspace.app.domain.model.PostChatResponse
 import com.soulspace.app.domain.model.PsychologistResponse
 import com.soulspace.app.domain.model.ResetChatResponse
@@ -42,5 +43,16 @@ class SoulSpaceRepositoryImpl @Inject constructor(
 
     override suspend fun resetChat(): ResetChatResponse {
         return soulSpaceApi.resetChat()
+    }
+
+    override suspend fun getPsychologistRoute(
+        fromLatitude: Double?,
+        fromLongitude: Double?,
+        toLatitude: Double?,
+        toLongitude: Double?
+    ): List<NavigationItem> {
+        return soulSpaceApi.getPsychologistRoute(
+            fromLatitude, fromLongitude, toLatitude, toLongitude
+        )
     }
 }
