@@ -21,7 +21,7 @@ class VoiceToTextParser @Inject constructor(
 
     val recognizer = SpeechRecognizer.createSpeechRecognizer(app)
 
-    fun startListening(languageCode: String = "id") {
+    fun startListening(languageCode: String = "id-ID") {
 //        Log.d("VoiceToTextParser", "startListening")
         _state.update {VoiceToTextParserState()}
         if (!SpeechRecognizer.isRecognitionAvailable(app)) {
@@ -35,7 +35,10 @@ class VoiceToTextParser @Inject constructor(
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, languageCode)
+            putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, languageCode)
         }
+
 
         recognizer.setRecognitionListener(this)
         recognizer.startListening(intent)
@@ -78,7 +81,7 @@ class VoiceToTextParser @Inject constructor(
             ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
             ?.getOrNull(0)
             ?.let { result ->
-//                Log.d("VoiceToTextParser", "onResults: $result")
+                Log.d("VoiceToTextParser", "onResults: $result")
                 _state.update { it.copy(spokenText = result) }
             }
 
